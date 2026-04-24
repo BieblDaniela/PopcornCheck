@@ -11,7 +11,7 @@
         if (!empty($vname) && !empty($nname) && !empty($email) && !empty($passw) && !empty($passw2) ) {
             if ($passw == $passw2) {
                 $passwHash = password_hash($passw, PASSWORD_DEFAULT);  
-                
+        
                 //Speichern in die DB
                 require_once('db.php');
                 try {
