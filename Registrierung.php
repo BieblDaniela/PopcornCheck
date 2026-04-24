@@ -2,13 +2,13 @@
     //session_start();
     $message = '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-        $vname = htmlspecialchars(trim($_POST['vname']));
-        $nname = htmlspecialchars(trim($_POST['nname']));
+        //$vname = htmlspecialchars(trim($_POST['vname']));
+        //$nname = htmlspecialchars(trim($_POST['nname']));
         $email = htmlspecialchars(trim($_POST['email']));
         $passw = htmlspecialchars(trim($_POST['passw']));
         $passw2 = htmlspecialchars(trim($_POST['passw2']));
 
-        if (!empty($vname) && !empty($nname) && !empty($email) && !empty($passw) && !empty($passw2) ) {
+        if (!empty($email) && !empty($passw) && !empty($passw2) ) {
             if ($passw == $passw2) {
                 $passwHash = password_hash($passw, PASSWORD_DEFAULT);  
                 
@@ -57,12 +57,12 @@
 <body>
     <h1>Registrierung</h1>
     <form action="" method="post">
-        <label for="vname">Vorname:</label>
+<!--   <label for="vname">Vorname:</label>
         <input type="text" name="vname" id="vname">
         <br><br>
         <label for="nname">Nachname:</label>
         <input type="text" name="nname" id="nname">
-        <br><br>
+        <br><br> -->
         <label for="email">Email:</label>
         <input type="text" name="email" id="email">
         <br><br>

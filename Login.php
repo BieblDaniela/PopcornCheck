@@ -2,60 +2,74 @@
     //session_start();
     $message = '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-        $vname = htmlspecialchars(trim($_POST['vname']));
-        $nname = htmlspecialchars(trim($_POST['nname']));
+  
         $email = htmlspecialchars(trim($_POST['email']));
         $passw = htmlspecialchars(trim($_POST['passw']));
-        $passw2 = htmlspecialchars(trim($_POST['passw2']));
+       
+        if (!empty($email) && !empty($passw)) {
+           
+                    //Speichern in die DB
+                    require_once('db.php');
+                    try {
 
-        if (!empty($vname) && !empty($nname) && !empty($email) && !empty($passw) && !empty($passw2) ) {
-            if ($passw == $passw2) {
-                $passwHash = password_hash($passw, PASSWORD_DEFAULT);  
-        
-                //Speichern in die DB
-                require_once('db.php');
-                try {
+                    //1. User aus der DB holen
+            require_once('db.php');
+            $stmt = $pdo->prepare("SELECT bid, vname, email, passw FROM benutzer WHERE email = :email");
+            
+            //$stmt->bindParam(":email,$email)
+            //$stmt->execute();
 
-                    $stmt = $pdo->prepare("INSERT INTO kunden (user, passw) VALUES (:vname, :passw) ");
+            $stmt->execute(['email' => $email]);
+            //Da das SELECT Daten zurückliefert,müssen wir diese Daten in einem Array entgegennehmen.
+            $user = $stmt->fetch(); //Der gwünschte Datensatz des "eingeloggten" Users wird zurückgegeben.
 
-                    $stmt->bindParam(':user', $email);
-                    $stmt->bindParam(':passw', $passwHash);
+            //2. Passwort überprüfen
+            if ($user && password_verify($passw, $user['passw'])) {
+                //Password_verify gibt ein true/false zurück
+                //User darf sich einloggen - Passwort und Email stimmen
 
-                    $stmt->execute();
-                    
-                    //header("location: login.php");
-
-                    //2. Schritt Kundenid holen
-                    $kundenID = $pdo->lastInsertId(); //last inserted id bezieht sich immer auf das prepare vom pdo, oben beim insert
-                    echo "Die Kunden ID lautet: " . $kundenID;
-                
-                    } catch(PDOException $e){
-                    if ($e->getCode() == 230000) { //Code für Duplicated Entry
-                        $message = "Daten sind bereits im System";
-                          die("Daten sind bereits im System");
-                    }
-                    else {
-                        $e->getMessage();
-                        die("FEHLER beim Speichern der Daten in der Datenbank");
-                    }
+                //SICHERHEITS-UPDATE
+                //Prüfen, ob der Hash veraltet ist (wenn ja, erneuern und in der DB speichern)
+                if (password_needs_rehash($user['passw'], PASSWORD_DEFAULT)) {
+                    //Neuen Hash generieren
+                    $newHash = password_hash($passw, PASSWORD_DEFAULT);
+                    //Neuen Hash in der DB speicher
+                    $updateStmt = $pdo->prepare("UPDATE benutzer SET passw = :passw WHERE bid = :bid");
+                    $updateStmt->execute([
+                        'passw' => $newHash,
+                        'bid' => $user['bid']
+                    ]);
                 }
-            }else{
-                $message = 'Die Passwörter stimmmen nicht überein';
+                    //Session setzen (Schutz vor Session Fixation)
+                    session_regenerate_id(true);
+
+                    //Die Session mit Daten befüllen
+                    $_SESSION['bid'] = $user['bid'];
+                    $_SESSION['vname'] = $user['vname'];
+                    $_SESSION['email'] = $user['email'];
+                    setcookie("vname",$_SESSION['vname'], time()+660*60*24*14);
+
+                    header("location: startseite.php");
+                    $message = "Erfolgreich eingeloggt! Hallo " . htmlspecialchars($user['vname']) . "!";
+                
             }
+                    }
+            
         } else {
             $message = 'Die Daten wurden nicht übermittelt';
         }
     }
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrierung</title>
+    <title>Login</title>
 </head>
 <body>
-    <h1>Registrierung</h1>
+    <h1>Login</h1>
     <form action="" method="post">
      
         <label for="email">Email:</label>
