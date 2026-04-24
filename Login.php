@@ -57,20 +57,13 @@
 <body>
     <h1>Registrierung</h1>
     <form action="" method="post">
-        <label for="vname">Vorname:</label>
-        <input type="text" name="vname" id="vname">
-        <br><br>
-        <label for="nname">Nachname:</label>
-        <input type="text" name="nname" id="nname">
-        <br><br>
+     
         <label for="email">Email:</label>
         <input type="text" name="email" id="email">
         <br><br>
         <label for="passw">Passwort:</label>
         <input type="text" name="passw" id="passw">
-        <br><br>
-        <label for="passw2">Passwort wiederholen:</label>
-        <input type="text" name="passw2" id="passw2">
+       
         <br><br>
         <input type="submit" value="Speichern" name="submit">
         
