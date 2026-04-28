@@ -1,12 +1,13 @@
+
 <?php
-    //session_start();
+
+    session_start();
     $message = '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-        //$vname = htmlspecialchars(trim($_POST['vname']));
-        //$nname = htmlspecialchars(trim($_POST['nname']));
+       
         $email = htmlspecialchars(trim($_POST['email']));
-        $passw = htmlspecialchars(trim($_POST['passw']));
-        $passw2 = htmlspecialchars(trim($_POST['passw2']));
+        $passw = (trim($_POST['passw']));
+        $passw2 = (trim($_POST['passw2']));
 
         if (!empty($email) && !empty($passw) && !empty($passw2) ) {
             if ($passw == $passw2) {
@@ -15,22 +16,19 @@
                 //Speichern in die DB
                 require_once('db.php');
                 try {
+                    $stmt = $pdo->prepare("INSERT INTO konto (email, passwort) VALUES (:email, :passwort) ");
 
-                    $stmt = $pdo->prepare("INSERT INTO kunden (user, passw) VALUES (:vname, :passw) ");
-
-                    $stmt->bindParam(':user', $email);
-                    $stmt->bindParam(':passw', $passwHash);
+                    $stmt->bindParam(':email', $email);
+                    $stmt->bindParam(':passwort', $passwHash);
 
                     $stmt->execute();
-                    
-                    //header("location: login.php");
 
-                    //2. Schritt Kundenid holen
-                    $kundenID = $pdo->lastInsertId(); //last inserted id bezieht sich immer auf das prepare vom pdo, oben beim insert
-                    echo "Die Kunden ID lautet: " . $kundenID;
+                   
+
+                    header("location: login.php");
                 
                     } catch(PDOException $e){
-                    if ($e->getCode() == 230000) { //Code für Duplicated Entry
+                    if ($e->getCode() == 23000) { //Code für Duplicated Entry
                         $message = "Daten sind bereits im System";
                           die("Daten sind bereits im System");
                     }
@@ -57,20 +55,15 @@
 <body>
     <h1>Registrierung</h1>
     <form action="" method="post">
-<!--   <label for="vname">Vorname:</label>
-        <input type="text" name="vname" id="vname">
-        <br><br>
-        <label for="nname">Nachname:</label>
-        <input type="text" name="nname" id="nname">
-        <br><br> -->
+
         <label for="email">Email:</label>
         <input type="text" name="email" id="email">
         <br><br>
         <label for="passw">Passwort:</label>
-        <input type="text" name="passw" id="passw">
+        <input type="password" name="passw" id="passw">
         <br><br>
         <label for="passw2">Passwort wiederholen:</label>
-        <input type="text" name="passw2" id="passw2">
+        <input type="password" name="passw2" id="passw2">
         <br><br>
         <input type="submit" value="Speichern" name="submit">
         
