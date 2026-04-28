@@ -5,14 +5,24 @@
     header('index.php');
 }*/
 
-$targetDir = "uploads/";
+function getYoutubeId($url) {
+    // Erkennt Video-IDs aus verschiedenen Formaten (watch?v=, share, embed)
+    preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $url, $match);
+    return isset($match[1]) ? $match[1] : null;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST['titel']) && !empty($_POST['genre']) && !empty($_POST['beschreibung'])) {
         $titel = trim($_POST['titel']);
-        $trailer = trim($_POST['trailer']);
+        $raw_trailer = trim($_POST['trailer']);
         $genre = trim($_POST['genre']);
         $beschreibung = trim($_POST['beschreibung']);
+
+        $videoID = getYoutubeId($raw_trailer);
+
+        if ($videoID === null) {
+            die("Ungültige URL eingabe.");
+        }
 
         require_once('db.php');
 
@@ -21,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt->execute([
                 ':titel' => $titel,
-                ':trailer' => $trailer,
+                ':trailer' => $videoID,
                 ':genre' => $genre,
                 ':beschreibung' => $beschreibung
             ]);
@@ -50,14 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="titel">Titel:</label>
         <input type="text" name="titel" id="titel" required>
 
-        <label for="trailer">Trailer URL:</label>
+        <label for="trailer">Trailer URL (YouTube):</label>
 	    <input type="text" name="trailer" id="trailer">
 
         <label for="genre">Genre:</label>
         <input type="text" name="genre" id="genre" required>
 
         <label for="beschreibung">Beschreibung:</label>
-        <input type="text" name="beschreibung" id="beschreibung" required>
+        <textarea name="beschreibung" id="beschreibung" required></textarea>
 
         <input type="submit" name="absenden" id="absenden" value="Absenden">
 
