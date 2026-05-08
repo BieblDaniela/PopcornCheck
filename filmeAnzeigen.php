@@ -5,8 +5,10 @@ $filme = [];
 $bewertungen = [];
 
 try {
+  
     $stmt = $pdo->prepare("SELECT * FROM film");
-    $filme = $stmt->fetchAll();
+    $stmt->execute(); 
+    $filme = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $th) {
     die('Datenbankfehler: ' . $th->getMessage());
@@ -90,22 +92,26 @@ try {
                             <?= htmlspecialchars($row['beschreibung']) ?>
                         </td>
                         <td>
-                            <!--- <?php //if (!empty($row['id'])): ?>
                                 <?php //
                                         //$stmt2 = $pdo->prepare("SELECT bewertung FROM bewertung WHERE film_id = ?");
                                         //$stmt2->execute([$row['id']]);
-                                        //$bewertungen = $stmt2->fetchAll(PDO::FETCH_ASSOC); ?>
-
-                                <?php //if (!empty($bewertungen)): ?>
-                                    <?php //foreach ($bewertungen as $b_row): ?>
-                                        <div class="bewertung-eintrag">
-                                            <p><?php //htmlspecialchars($b_row['bewertung']) ?></p>
-                                        </div>
+                                        //$bewertungen = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+                                        $stmt2 = $pdo->prepare('SELECT bewertung FROM bewertung WHERE fid_fk = ?');
+                                        $stmt2->execute([$row['fid']]);
+                                        $bewertungen = $stmt2->fetch();
+                                        
+                                        ?>
+                                <!-- ?=  kurschreibweise echo -->
+                                <?php if (!empty($bewertungen)): ?>
+                                    <?php  ?>
+                                       
+                                            <p><?=   htmlspecialchars($bewertungen['bewertung']) ?></p>
+                                        
                                     <?php //endforeach; ?>
-                                <?php //else: ?>
-                                    <small>Noch keine Bewertungen.</small>
-                                <?php //endif; ?>
-                            <?php //endif; ?>--->
+                                <?php else: ?>
+                                    <p>Noch keine Bewertungen.</p>
+                                <?php endif; ?>
+                           
                 </td>
             </tr>
             <?php endforeach; ?>
