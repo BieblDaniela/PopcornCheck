@@ -4,15 +4,7 @@
 require_once('db.php');
 $sql = "SELECT fid, titel, genre, beschreibung FROM film";
 $params = [];
-/*
-try {
-    $stmt = "SELECT fid, titel, genre, beschreibung FROM film";
-    $result = $pdo->query($stmt);
-} catch (PDOException $e) {
-    $e->getMessage();
-    die('Fehler beim Holen der Daten');
-}
-*/
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['suchen'])) {
         if (!empty($_POST['suche'])) {
@@ -21,15 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $sql = "SELECT fid, titel, genre, beschreibung FROM film WHERE titel LIKE :suchParameter";
             $params = [':suchParameter' => $suchParameter];
-            /*
-        try {
-            $sql = "SELECT fid, titel, genre, beschreibung FROM film WHERE titel LIKE :suchParameter OR genre LIKE :suchParameter";
-            $stmt2 = $pdo->prepare($sql);
-            $stmt2->execute([':suchParameter' => $suchParameter]);
-        } catch (PDOException $e) {
-            $e->getMessage();
-            die('Fehler beim Holen der Daten');
-        }*/
         }
     }
 }
@@ -43,7 +26,7 @@ try {
 }
 
 if (isset($_POST['anzeigen'])) {
-    //$_SESSION['fid'] = $_POST['anzeigen'];
+    $_SESSION['fid'] = $_POST['anzeigen'];
     header('location: test.php'); //richtige Verlinkung einfügen
 }
 
@@ -89,10 +72,10 @@ if (isset($_POST['anlegen'])) {
             <?php endwhile; ?>
         </table>
 
-        <!--<?php /*if ($_SESSION['kid'] === 1):?>
+        <?php if ($_SESSION['kid'] === 1):?>
             <button type="submit" name="anlegen">Film anlegen</button>
-        <?php endif;*/ ?>
-    </form>-->
+        <?php endif; ?>
+    </form>
 </body>
 
 </html>
