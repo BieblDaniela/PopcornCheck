@@ -80,7 +80,7 @@ if (isset($_POST['logout'])) {
             <?php endwhile; ?>
         </table>
 
-        <?php if ($_SESSION['kid'] === 1):?>
+        <?php if ($_SESSION['kid'] === 1): ?>
             <button type="submit" name="anlegen">Film anlegen</button>
         <?php endif; ?>
 
