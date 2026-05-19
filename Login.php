@@ -1,10 +1,10 @@
 <?php
-//session_start();
+session_start();
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $email = htmlspecialchars(trim($_POST['email']));
-    $passw = htmlspecialchars(trim($_POST['passw']));
+    $passw = trim($_POST['passw']);
 
     if (!empty($email) && !empty($passw)) {
 
@@ -24,12 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($passw, $user['passwort'])) {
 
             if (password_needs_rehash($user['passwort'], PASSWORD_DEFAULT)) {
-
                 $newHash = password_hash($passw, PASSWORD_DEFAULT);
-                $updateStmt = $pdo->prepare("UPDATE benutzer SET passwort = :passwort WHERE bid = :bid");
+                $updateStmt = $pdo->prepare("UPDATE konto SET passwort = :passwort WHERE kid = :kid");
                 $updateStmt->execute([
                     'passwort' => $newHash,
-                    'bid' => $user['bid']
+                    'kid' => $user['kid']
                 ]);
             }
             //Session setzen 
@@ -37,13 +36,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             //Die Session mit Daten befüllen
             $_SESSION['kid'] = $user['kid'];
-          
             $_SESSION['email'] = $user['email'];
-          
-            //header("location: startseite.php");
-            $message = "Erfolgreich eingeloggt!" . $_SESSION['kid'] ;
-        
+
+            $message = "Erfolgreich eingeloggt! Deine ID ist: " . $_SESSION['kid'];
+
+        } else {
+            // DAS HIER HAT GEFEHLT:
+            $message = "Falsches Passwort oder falsche Email!";
         }
+
     } else {
         $message = 'Dieser Benutzer existiert nicht';
     }
@@ -83,6 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="submit" value="Speichern" name="submit">
 
         <a href="logout.php">logout</a>
+
+        <a href="filmBewerten.php">Film Bewerten</a>
     </form>
     <?php if ($message): ?>
         <p>
