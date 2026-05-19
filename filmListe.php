@@ -1,5 +1,9 @@
 <?php
-//session_start();
+session_start();
+
+if (empty($_SESSION['kid'])) {
+    header('location: Login.php');
+}
 
 require_once('db.php');
 $sql = "SELECT fid, titel, genre, beschreibung FROM film";
@@ -27,11 +31,15 @@ try {
 
 if (isset($_POST['anzeigen'])) {
     $_SESSION['fid'] = $_POST['anzeigen'];
-    header('location: test.php'); //richtige Verlinkung einfügen
+    header('location: filmeAnzeigen.php');
 }
 
 if (isset($_POST['anlegen'])) {
     header('location: filmAnlegen.php');
+}
+
+if (isset($_POST['logout'])) {
+    header('location: logout.php');
 }
 
 ?>
@@ -75,6 +83,8 @@ if (isset($_POST['anlegen'])) {
         <?php if ($_SESSION['kid'] === 1):?>
             <button type="submit" name="anlegen">Film anlegen</button>
         <?php endif; ?>
+
+        <button type="submit" name="logout">Logout</button>
     </form>
 </body>
 

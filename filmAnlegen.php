@@ -1,9 +1,9 @@
 <?php
-//session_start();
+session_start();
 
-/*if ($_SESSION['id'] != 1) {
-    header('index.php');
-}*/
+if ($_SESSION['id'] != 1) {
+    header('location: filmListe.php');
+}
 
 function getYoutubeId($url) {
     // Erkennt Video-IDs aus verschiedenen Formaten (watch?v=, share, embed)
@@ -37,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             echo "Film wurde in die Datenbank hochgeladen";
+
+            header('location: filmListe.php');
 
         } catch (PDOException $e) {
             die('Fehler beim Speichern in die Datenbank.');

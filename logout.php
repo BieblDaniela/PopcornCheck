@@ -24,7 +24,7 @@ session_destroy();
 
 <body>
     <p>Sie sind abgemeldet</p>
-   <p style="text-align: center;"><a href="startseite.php" >Zurück zur Startseite</a></p>
+   <p style="text-align: center;"><a href="Login.php" >Zurück zum Login</a></p>
 </body>
 
 </html>

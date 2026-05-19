@@ -1,7 +1,5 @@
 
 <?php
-
-    session_start();
     $message = '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST'){
        
@@ -25,7 +23,7 @@
 
                    
 
-                    header("location: login.php");
+                    header("location: Login.php");
                 
                     } catch(PDOException $e){
                     if ($e->getCode() == 23000) { //Code für Duplicated Entry
