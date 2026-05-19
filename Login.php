@@ -1,78 +1,93 @@
 <?php
-    //session_start();
-    $message = '';
-    if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-        $vname = htmlspecialchars(trim($_POST['vname']));
-        $nname = htmlspecialchars(trim($_POST['nname']));
-        $email = htmlspecialchars(trim($_POST['email']));
-        $passw = htmlspecialchars(trim($_POST['passw']));
-        $passw2 = htmlspecialchars(trim($_POST['passw2']));
+//session_start();
+$message = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        if (!empty($vname) && !empty($nname) && !empty($email) && !empty($passw) && !empty($passw2) ) {
-            if ($passw == $passw2) {
-                $passwHash = password_hash($passw, PASSWORD_DEFAULT);  
-        
-                //Speichern in die DB
-                require_once('db.php');
-                try {
+    $email = htmlspecialchars(trim($_POST['email']));
+    $passw = htmlspecialchars(trim($_POST['passw']));
 
-                    $stmt = $pdo->prepare("INSERT INTO kunden (user, passw) VALUES (:vname, :passw) ");
+    if (!empty($email) && !empty($passw)) {
 
-                    $stmt->bindParam(':user', $email);
-                    $stmt->bindParam(':passw', $passwHash);
 
-                    $stmt->execute();
-                    
-                    //header("location: login.php");
+        require_once('db.php');
+        try {
 
-                    //2. Schritt Kundenid holen
-                    $kundenID = $pdo->lastInsertId(); //last inserted id bezieht sich immer auf das prepare vom pdo, oben beim insert
-                    echo "Die Kunden ID lautet: " . $kundenID;
-                
-                    } catch(PDOException $e){
-                    if ($e->getCode() == 230000) { //Code für Duplicated Entry
-                        $message = "Daten sind bereits im System";
-                          die("Daten sind bereits im System");
-                    }
-                    else {
-                        $e->getMessage();
-                        die("FEHLER beim Speichern der Daten in der Datenbank");
-                    }
-                }
-            }else{
-                $message = 'Die Passwörter stimmmen nicht überein';
-            }
-        } else {
-            $message = 'Die Daten wurden nicht übermittelt';
+            //1. User aus der DB holen
+
+            $stmt = $pdo->prepare("SELECT * FROM konto WHERE email = :email ");
+            $stmt->execute(['email' => $email]);
+
+            $user = $stmt->fetch();
+        } catch (PDOException $e) {
         }
+        //2. Passwort überprüfen
+        if ($user && password_verify($passw, $user['passwort'])) {
+
+            if (password_needs_rehash($user['passwort'], PASSWORD_DEFAULT)) {
+
+                $newHash = password_hash($passw, PASSWORD_DEFAULT);
+                $updateStmt = $pdo->prepare("UPDATE benutzer SET passwort = :passwort WHERE bid = :bid");
+                $updateStmt->execute([
+                    'passwort' => $newHash,
+                    'bid' => $user['bid']
+                ]);
+            }
+            //Session setzen 
+            session_regenerate_id(true);
+
+            //Die Session mit Daten befüllen
+            $_SESSION['kid'] = $user['kid'];
+          
+            $_SESSION['email'] = $user['email'];
+          
+            //header("location: startseite.php");
+            $message = "Erfolgreich eingeloggt!" . $_SESSION['kid'] ;
+        
+        }
+    } else {
+        $message = 'Dieser Benutzer existiert nicht';
     }
+} else {
+    $message = 'Die Daten wurden nicht übermittelt';
+}
+
+
+
+
+
+
+
+
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrierung</title>
+    <title>Login</title>
 </head>
+
 <body>
-    <h1>Registrierung</h1>
+    <h1>Login</h1>
     <form action="" method="post">
-     
+
         <label for="email">Email:</label>
         <input type="text" name="email" id="email">
         <br><br>
         <label for="passw">Passwort:</label>
         <input type="text" name="passw" id="passw">
-       
+
         <br><br>
         <input type="submit" value="Speichern" name="submit">
-        
 
+        <a href="logout.php">logout</a>
     </form>
     <?php if ($message): ?>
-    <p>
-        <?= $message?>
-    </p>
+        <p>
+            <?= $message ?>
+        </p>
     <?php endif; ?>
 </body>
 

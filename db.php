@@ -1,5 +1,5 @@
 <?php
-$config = require 'config.php';
+$config = require 'config.local.example.php';
 
 $dsn = "mysql:host={$config['host']};dbname={$config['db']};charset=utf8";
 $options = [
