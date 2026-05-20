@@ -48,30 +48,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrierung</title>
+    <title>PopcornCheck - Registrierung</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h1>Registrierung</h1>
-    <form action="" method="post">
+<body class="centered-layout">
+    <div class="card">
+        <div class="logo-container">
+            <img src="Logo.png" alt="PopcornCheck Logo" class="logo-img">
+        </div>
+        <h1>Registrierung</h1>
 
-        <label for="email">Email:</label>
-        <input type="text" name="email" id="email">
-        <br><br>
-        <label for="passw">Passwort:</label>
-        <input type="password" name="passw" id="passw">
-        <br><br>
-        <label for="passw2">Passwort wiederholen:</label>
-        <input type="password" name="passw2" id="passw2">
-        <br><br>
-        <input type="submit" value="Speichern" name="submit">
-        
+        <?php if ($message): ?>
+            <div class="alert alert-danger">
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php endif; ?>
 
-    </form>
-    <?php if ($message): ?>
-    <p>
-        <?= $message?>
-    </p>
-    <?php endif; ?>
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="email">E-Mail Adresse</label>
+                <input type="email" name="email" id="email" class="form-control" placeholder="name@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="passw">Passwort</label>
+                <input type="password" name="passw" id="passw" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="form-group">
+                <label for="passw2">Passwort wiederholen</label>
+                <input type="password" name="passw2" id="passw2" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" name="submit" class="btn btn-primary btn-block">Registrieren</button>
+        </form>
+
+        <div class="auth-footer">
+            Bereits registriert? <a href="Login.php">Jetzt anmelden</a>
+        </div>
+    </div>
 </body>
 
 </html>

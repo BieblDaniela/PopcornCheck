@@ -57,27 +57,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>PopcornCheck - Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-    <h1>Login</h1>
-    <form action="" method="post">
+<body class="centered-layout">
+    <div class="card">
+        <div class="logo-container">
+            <img src="Logo.png" alt="PopcornCheck Logo" class="logo-img">
+        </div>
+        <h1>Login</h1>
 
-        <label for="email">Email:</label>
-        <input type="text" name="email" id="email">
-        <br><br>
-        <label for="passw">Passwort:</label>
-        <input type="password" name="passw" id="passw">
+        <?php if ($message): ?>
+            <div class="alert alert-danger">
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php endif; ?>
 
-        <br><br>
-        <input type="submit" value="Login" name="submit">
-    </form>
-    <?php if ($message): ?>
-        <p>
-            <?= $message ?>
-        </p>
-    <?php endif; ?>
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="email">E-Mail Adresse</label>
+                <input type="email" name="email" id="email" class="form-control" placeholder="name@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="passw">Passwort</label>
+                <input type="password" name="passw" id="passw" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" name="submit" class="btn btn-primary btn-block">Anmelden</button>
+        </form>
+
+        <div class="auth-footer">
+            Noch kein Konto? <a href="Registrierung.php">Jetzt registrieren</a>
+        </div>
+    </div>
 </body>
 
 </html>

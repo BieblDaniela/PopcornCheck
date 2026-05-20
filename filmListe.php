@@ -50,41 +50,62 @@ if (isset($_POST['logout'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Film Liste</title>
+    <title>PopcornCheck - Film Liste</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-    <h1>Film Liste:</h1>
-
+<body class="dashboard-layout">
     <form action="" method="post">
+        <!-- Dashboard Top Header / Navbar -->
+        <header class="dashboard-header">
+            <div class="header-brand">
+                <img src="Logo.png" alt="PopcornCheck Logo">
+                <div class="header-title-container">
+                    <h1>PopcornCheck</h1>
+                    <p>Angemeldet als: <strong><?= htmlspecialchars($_SESSION['email']) ?></strong></p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <?php if ((int)$_SESSION['kid'] === 1): ?>
+                    <button type="submit" name="anlegen" class="btn btn-primary">Film anlegen</button>
+                <?php endif; ?>
+                <button type="submit" name="logout" class="btn btn-danger">Abmelden</button>
+            </div>
+        </header>
 
-        <label for="suche">Filmtitel suchen:</label>
-        <input type="text" name="suche" id="suche">
-        <button type="submit" name="suchen" id="suchen">Suchen</button>
+        <!-- Search Bar Section -->
+        <div class="search-container">
+            <input type="text" name="suche" id="suche" class="form-control" placeholder="Filmtitel suchen...">
+            <button type="submit" name="suchen" id="suchen" class="btn btn-secondary">Suchen</button>
+        </div>
 
-        <br><br>
-
-        <table>
-            <tr>
-                <th>Titel</th>
-                <th>Genre</th>
-                <th>Beschreibung</th>
-            </tr>
-            <?php while ($row = $result->fetch()): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($row['titel']); ?></td>
-                    <td><?php echo htmlspecialchars($row['genre']); ?></td>
-                    <td><?php echo htmlspecialchars($row['beschreibung']); ?></td>
-                    <td><button type="submit" name="anzeigen" value="<?php echo $row['fid']; ?>">Anzeigen</button></td>
-                </tr>
-            <?php endwhile; ?>
-        </table>
-
-        <?php if ($_SESSION['kid'] === 1): ?>
-            <button type="submit" name="anlegen">Film anlegen</button>
-        <?php endif; ?>
-
-        <button type="submit" name="logout">Logout</button>
+        <!-- Movie List Table -->
+        <div class="table-container">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Titel</th>
+                        <th>Genre</th>
+                        <th>Beschreibung</th>
+                        <th style="width: 120px; text-align: right;">Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch()): ?>
+                        <tr>
+                            <td style="font-weight: 600; color: #ffffff;"><?php echo htmlspecialchars($row['titel']); ?></td>
+                            <td>
+                                <span class="badge badge-genre"><?php echo htmlspecialchars($row['genre']); ?></span>
+                            </td>
+                            <td><?php echo htmlspecialchars($row['beschreibung']); ?></td>
+                            <td style="text-align: right;">
+                                <button type="submit" name="anzeigen" value="<?php echo $row['fid']; ?>" class="btn btn-secondary btn-small" style="padding: 8px 16px; font-size: 0.85rem;">Anzeigen</button>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
     </form>
 </body>
 

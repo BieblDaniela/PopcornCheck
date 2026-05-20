@@ -3,6 +3,7 @@ session_start();
 
 if (empty($_SESSION['kid'])) {
     header('location: Login.php');
+    exit;
 }
 
 require_once('db.php');
@@ -10,7 +11,6 @@ $fid = $_SESSION['fid'];
 $bewertungen = [];
 
 try {
-
     $stmt = $pdo->prepare("SELECT * FROM film WHERE fid = :fid");
     $stmt->execute(['fid' => $fid]);
     $film = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -21,19 +21,20 @@ try {
 try {
     $stmt2 = $pdo->prepare('SELECT bewertung.bewertung, konto.email FROM bewertung INNER JOIN konto ON bewertung.kid_fk = konto.kid WHERE bewertung.fid_fk = :fid');
     $stmt2->execute(['fid' => $fid]);
-    $bewertungen = $stmt2->fetch();
+    $bewertungen = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die('Datenbankfehler: ' . $e->getMessage());
 }
 
 if (isset($_POST['bewerten'])) {
     header('location: bewerten.php');
+    exit;
 }
 
 if (isset($_POST['liste'])) {
     header('location: filmListe.php');
+    exit;
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -41,54 +42,96 @@ if (isset($_POST['liste'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PopcornCheck - Film</title>
+    <title>PopcornCheck - <?= htmlspecialchars($film['titel']) ?></title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-<form action="" method="post">
-    <h1><?php echo $film['titel']; ?></h1>
+<body class="dashboard-layout">
+    <form action="" method="post">
+        <!-- Top Navbar Header -->
+        <header class="dashboard-header">
+            <div class="header-brand">
+                <img src="Logo.png" alt="PopcornCheck Logo">
+                <div class="header-title-container">
+                    <h1>PopcornCheck</h1>
+                    <p>Filmdetails & Bewertungen</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button type="submit" name="liste" class="btn btn-secondary">Zurück zur Filmliste</button>
+            </div>
+        </header>
 
-    <p>Genre: <?= htmlspecialchars($film['genre']) ?></p>
+        <!-- Two-column responsive layout -->
+        <div class="movie-details-layout">
+            <!-- Left Pane: Movie info, Trailer and Description -->
+            <div class="detail-info-pane">
+                <div style="margin-bottom: 24px;">
+                    <span class="badge badge-genre" style="margin-bottom: 8px;"><?= htmlspecialchars($film['genre']) ?></span>
+                    <h1 style="font-size: 2.2rem; margin-bottom: 12px;"><?= htmlspecialchars($film['titel']) ?></h1>
+                </div>
 
-    <?php if (!empty($film['trailer'])): ?>
-        <iframe width="300" height="169"
-            src="https://www.youtube.com/embed/<?= htmlspecialchars($film['trailer']) ?>" frameborder="0"
-            allowfullscreen>
-        </iframe>
-    <?php else: ?>
-        <i>Es ist kein Trailer vorhanden.</i>
-    <?php endif; ?>
+                <?php if (!empty($film['trailer'])): ?>
+                    <div class="trailer-container">
+                        <iframe 
+                            src="https://www.youtube.com/embed/<?= htmlspecialchars($film['trailer']) ?>" 
+                            frameborder="0"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                <?php else: ?>
+                    <div class="no-trailer">
+                        <span>Es ist kein Trailer vorhanden.</span>
+                    </div>
+                <?php endif; ?>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Benutzer</th>
-                <th>Bewertung</th>
-            </tr>
-        </thead>
+                <div class="detail-meta-item">
+                    <label>Beschreibung</label>
+                    <p style="white-space: pre-line; line-height: 1.7;"><?= htmlspecialchars($film['beschreibung']) ?></p>
+                </div>
 
-        <body>
-            <?php if (!empty($bewertungen)): ?>
-                <tr>
-                    <th>
-                        <p><?= htmlspecialchars($bewertungen['email']) ?></p>
-                    </th>
-                    <th>
-                        <p><?= htmlspecialchars($bewertungen['bewertung']) ?></p>
-                    </th>
-                </tr>
-            <?php else: ?>
-                <tr>
-                    <th></th>
-                    <th><p>Noch keine Bewertungen.</p></th>
-                </tr>
-            <?php endif; ?>
-        </body>
-    </table>
+                <div class="detail-actions">
+                    <button type="submit" name="bewerten" class="btn btn-primary">Bewertung schreiben</button>
+                </div>
+            </div>
 
-    <button type="submit" name="bewerten">Bewertung schreiben</button>
-    <button type="submit" name="liste">Zurück zur Filmliste</button>
-</form>
+            <!-- Right Pane: Reviews list -->
+            <div class="detail-reviews-pane">
+                <h2 style="font-size: 1.4rem; margin-bottom: 20px; border-bottom: 1px solid var(--bg-card-border); padding-bottom: 12px;">Community Bewertungen</h2>
+
+                <div class="table-container" style="margin: 0; background: transparent; border: none; box-shadow: none;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Benutzer</th>
+                                <th style="text-align: right; width: 120px;">Bewertung</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($bewertungen)): ?>
+                                <?php foreach ($bewertungen as $b): ?>
+                                    <tr>
+                                        <td>
+                                            <span style="font-weight: 500; color: #ffffff;"><?= htmlspecialchars($b['email']) ?></span>
+                                        </td>
+                                        <td style="text-align: right; font-weight: 700; color: var(--primary-color);">
+                                            ★ <?= htmlspecialchars($b['bewertung']) ?>/10
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="2" style="text-align: center; font-style: italic; color: var(--text-muted); padding: 40px 0;">
+                                        Noch keine Bewertungen vorhanden. Sei der Erste!
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
 </body>
 
 </html>

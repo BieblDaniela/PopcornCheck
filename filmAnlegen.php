@@ -1,8 +1,9 @@
 <?php
 session_start();
 
-if ($_SESSION['id'] != 1) {
+if (empty($_SESSION['kid']) || (int)$_SESSION['kid'] !== 1) {
     header('location: filmListe.php');
+    exit;
 }
 
 function getYoutubeId($url) {
@@ -53,26 +54,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Film anlegen</title>
+    <title>PopcornCheck - Film anlegen</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h1>Film anlegen</h1>
+<body class="centered-layout">
+    <div class="card" style="max-width: 500px;">
+        <div class="logo-container">
+            <img src="Logo.png" alt="PopcornCheck Logo" class="logo-img">
+        </div>
+        <h1>Film anlegen</h1>
 
-    <form action="" method="post">
-        <label for="titel">Titel:</label>
-        <input type="text" name="titel" id="titel" required>
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="titel">Titel</label>
+                <input type="text" name="titel" id="titel" class="form-control" required placeholder="z.B. Inception">
+            </div>
 
-        <label for="trailer">Trailer URL (YouTube):</label>
-	    <input type="text" name="trailer" id="trailer">
+            <div class="form-group">
+                <label for="trailer">Trailer URL (YouTube)</label>
+                <input type="text" name="trailer" id="trailer" class="form-control" placeholder="z.B. https://www.youtube.com/watch?v=...">
+            </div>
 
-        <label for="genre">Genre:</label>
-        <input type="text" name="genre" id="genre" required>
+            <div class="form-group">
+                <label for="genre">Genre</label>
+                <input type="text" name="genre" id="genre" class="form-control" required placeholder="z.B. Science Fiction">
+            </div>
 
-        <label for="beschreibung">Beschreibung:</label>
-        <textarea name="beschreibung" id="beschreibung" required></textarea>
+            <div class="form-group">
+                <label for="beschreibung">Beschreibung</label>
+                <textarea name="beschreibung" id="beschreibung" class="form-control" required placeholder="Kurze Inhaltsangabe des Films..."></textarea>
+            </div>
 
-        <input type="submit" name="absenden" id="absenden" value="Absenden">
-
-    </form>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <a href="filmListe.php" class="btn btn-secondary" style="flex: 1;">Abbrechen</a>
+                <button type="submit" name="absenden" id="absenden" class="btn btn-primary" style="flex: 1.5;">Film speichern</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
