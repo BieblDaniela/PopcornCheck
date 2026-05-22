@@ -1,33 +1,44 @@
 <?php
 session_start();
 
-
 if (!isset($_SESSION['kid'])) {
-    die('<h3>Du musst eingeloggt sein, um eine Bewertung abzugeben.</h3><p><a href="Login.php">Login</a></p>');
+    header('location: Login.php');
+    exit;
 }
 
 require_once('db.php');
 
 $message = '';
-$filme = [];
+$film_id = $_SESSION['bewertung_fid'] ?? '';
 
-// Filme für Dropdown laden
+if (empty($film_id)) {
+    header('location: filmListe.php');
+    exit;
+}
+
+// Fetch film for display
+$film = null;
 try {
-    $stmt = $pdo->prepare("SELECT * FROM film");
-    $stmt->execute();
-    $filme = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SELECT titel FROM film WHERE fid = :fid");
+    $stmt->execute(['fid' => $film_id]);
+    $film = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Datenbankfehler: " . $e->getMessage());
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $film_id = $_POST['film_id'] ?? '';
-   // $bewertung = $_POST['bewertung'] ?? '';
+    if (isset($_POST['zurueck'])) {
+        header('location: filmeAnzeigen.php');
+        exit;
+    }
 
-    if (!empty($film_id) && !empty($bewertung)) {
+    $sterne = $_POST['sterne'] ?? '';
+    $zusatz = $_POST['zusatz'] ?? '';
+
+    if (!empty($sterne)) {
         try {
-            $stmt = $pdo->prepare("INSERT INTO bewertung (bewertung, sterne, fid_fk, kid_fk) VALUES (?, ?, ?)");
-            if ($stmt->execute([$_POST['zusatz'], $_POST['sterne'], $film_id, $_SESSION['kid']])) {
+            $stmt = $pdo->prepare("INSERT INTO bewertung (bewertung, sterne, fid_fk, kid_fk) VALUES (?, ?, ?, ?)");
+            if ($stmt->execute([$zusatz, $sterne, $film_id, $_SESSION['kid']])) {
                 $message = "Bewertung erfolgreich gespeichert!";
             } else {
                 $message = "Fehler beim Speichern der Bewertung.";
@@ -36,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "Datenbankfehler beim Speichern: " . $e->getMessage();
         }
     } else {
-        $message = "Bitte wähle einen Film aus und gib eine Bewertung ein.";
+        $message = "Bitte gib eine Sterne-Bewertung ein.";
     }
 }
 ?>
@@ -46,12 +57,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filme Bewerten</title>
+    <title>PopcornCheck - Film bewerten</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        /* Sterne Bewertung */
         .rating {
             direction: rtl;
-            display: inline-block;
+            display: inline-flex;
+            gap: 4px;
         }
 
         .rating input {
@@ -59,59 +71,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .rating label {
-            font-size: 30px;
-            color: #ccc;
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.2);
             cursor: pointer;
+            transition: color 0.2s;
         }
 
         .rating label:hover,
         .rating label:hover~label,
         .rating input:checked~label {
-            color: gold;
+            color: var(--primary-color);
         }
     </style>
 </head>
 
-<body>
-    <h1>Film bewerten</h1>
-
-    <?php if (!empty($message)): ?>
-        <p><strong><?= htmlspecialchars($message) ?></strong></p>
-    <?php endif; ?>
-
-    <form action="" method="post">
-        <div>
-            <label for="film_id">Film Titel:</label>
-            <select name="film_id" id="film_id" required>
-                <option value="">-- Bitte wählen --</option>
-                <?php foreach ($filme as $film): ?>
-                    <option value="<?= htmlspecialchars($film['fid']) ?>"><?= htmlspecialchars($film['titel']) ?></option>
-                <?php endforeach; ?>
-            </select>
+<body class="centered-layout">
+    <div class="card">
+        <div class="logo-container">
+            <h1 style="background: none; -webkit-text-fill-color: initial; color: #fff;">Film bewerten</h1>
+            <?php if ($film): ?>
+                <p style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 20px;">
+                    <?= htmlspecialchars($film['titel']) ?>
+                </p>
+            <?php endif; ?>
         </div>
-        <br>
 
-        <div>
-            <label>Bewertung:</label><br>
-            <div class="rating">
-                <input type="radio" id="star5" name="sterne" value="5" required /><label for="star5"
-                    title="5 Sterne">★</label>
-                <input type="radio" id="star4" name="sterne" value="4" /><label for="star4"
-                    title="4 Sterne">★</label>
-                <input type="radio" id="star3" name="sterne" value="3" /><label for="star3"
-                    title="3 Sterne">★</label>
-                <input type="radio" id="star2" name="sterne" value="2" /><label for="star2"
-                    title="2 Sterne">★</label>
-                <input type="radio" id="star1" name="sterne" value="1" /><label for="star1" title="1 Stern">★</label>
+        <?php if (!empty($message)): ?>
+            <div class="alert <?= strpos($message, 'erfolgreich') !== false ? 'alert-info' : 'alert-danger' ?>">
+                <?= htmlspecialchars($message) ?>
             </div>
-        </div>
-        <br>
+            <?php if (strpos($message, 'erfolgreich') !== false): ?>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="filmeAnzeigen.php" class="btn btn-secondary">Zurück zum Film</a>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
 
-        <label for="zusatz">Zusätzliche Infos</label><br>
-        <textarea name="zusatz" id="zusatz"></textarea>
+        <?php if (empty($message) || strpos($message, 'erfolgreich') === false): ?>
+            <form action="" method="post">
+                <div class="form-group" style="align-items: center; margin-bottom: 24px;">
+                    <label>Deine Bewertung</label>
+                    <div class="rating">
+                        <input type="radio" id="star5" name="sterne" value="5" required /><label for="star5"
+                            title="5 Sterne">★</label>
+                        <input type="radio" id="star4" name="sterne" value="4" /><label for="star4"
+                            title="4 Sterne">★</label>
+                        <input type="radio" id="star3" name="sterne" value="3" /><label for="star3"
+                            title="3 Sterne">★</label>
+                        <input type="radio" id="star2" name="sterne" value="2" /><label for="star2"
+                            title="2 Sterne">★</label>
+                        <input type="radio" id="star1" name="sterne" value="1" /><label for="star1"
+                            title="1 Stern">★</label>
+                    </div>
+                </div>
 
-        <button type="submit">Senden</button>
-    </form>
+                <div class="form-group">
+                    <label for="zusatz">Zusätzliche Infos (optional)</label>
+                    <textarea name="zusatz" id="zusatz" class="form-control"
+                        placeholder="Wie fandest du den Film?"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="submit" name="zurueck" class="btn btn-secondary" formnovalidate
+                        style="flex: 1;">Abbrechen</button>
+                    <button type="submit" name="speichern" class="btn btn-primary" style="flex: 1;">Speichern</button>
+                </div>
+            </form>
+        <?php endif; ?>
+    </div>
 </body>
 
 </html>

@@ -19,7 +19,7 @@ try {
 }
  
 try {
-    $stmt2 = $pdo->prepare('SELECT bewertung.bewertung, konto.email FROM bewertung INNER JOIN konto ON bewertung.kid_fk = konto.kid WHERE bewertung.fid_fk = :fid');
+    $stmt2 = $pdo->prepare('SELECT bewertung.bewertung, bewertung.sterne, konto.email FROM bewertung INNER JOIN konto ON bewertung.kid_fk = konto.kid WHERE bewertung.fid_fk = :fid');
     $stmt2->execute(['fid' => $fid]);
     $bewertungen = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -27,7 +27,8 @@ try {
 }
  
 if (isset($_POST['bewerten'])) {
-    header('location: bewerten.php');
+    $_SESSION['bewertung_fid'] = $fid;
+    header('location: filmBewerten.php');
     exit;
 }
  
@@ -115,7 +116,13 @@ if (isset($_POST['liste'])) {
                                             <span style="font-weight: 500; color: #ffffff;"><?= htmlspecialchars($b['email']) ?></span>
                                         </td>
                                         <td style="text-align: right; font-weight: 700; color: var(--primary-color);">
-                                            ★ <?= htmlspecialchars($b['bewertung']) ?>/10
+                                            <?php
+                                            $stars = isset($b['sterne']) ? intval($b['sterne']) : 0;
+                                            for ($i = 0; $i < $stars; $i++) echo '★';
+                                            for ($i = $stars; $i < 5; $i++) echo '☆';
+                                            ?>
+                                            <br>
+                                            <span style="font-size: 0.8em; font-weight: normal; color: #ccc;"><?= htmlspecialchars($b['bewertung']) ?></span>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
