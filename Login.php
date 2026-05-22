@@ -3,7 +3,7 @@ session_start();
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $email = trim($_POST['email']);
+    $email = htmlspecialchars(trim($_POST['email']));
     $passw = trim($_POST['passw']);
 
     if (!empty($email) && !empty($passw)) {
@@ -24,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($passw, $user['passwort'])) {
 
             if (password_needs_rehash($user['passwort'], PASSWORD_DEFAULT)) {
-
                 $newHash = password_hash($passw, PASSWORD_DEFAULT);
                 $updateStmt = $pdo->prepare("UPDATE konto SET passwort = :passwort WHERE kid = :kid");
                 $updateStmt->execute([
@@ -45,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }else {
         $message = 'Dieser Benutzer existiert nicht';
         }
+
     } else {
         $message = 'Die Daten wurden nicht übermittelt';
     }

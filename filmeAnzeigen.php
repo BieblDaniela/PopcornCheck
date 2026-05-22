@@ -1,15 +1,15 @@
 <?php
 session_start();
-
+ 
 if (empty($_SESSION['kid'])) {
     header('location: Login.php');
     exit;
 }
-
+ 
 require_once('db.php');
 $fid = $_SESSION['fid'];
 $bewertungen = [];
-
+ 
 try {
     $stmt = $pdo->prepare("SELECT * FROM film WHERE fid = :fid");
     $stmt->execute(['fid' => $fid]);
@@ -17,7 +17,7 @@ try {
 } catch (PDOException $th) {
     die('Datenbankfehler: ' . $th->getMessage());
 }
-
+ 
 try {
     $stmt2 = $pdo->prepare('SELECT bewertung.bewertung, konto.email FROM bewertung INNER JOIN konto ON bewertung.kid_fk = konto.kid WHERE bewertung.fid_fk = :fid');
     $stmt2->execute(['fid' => $fid]);
@@ -25,12 +25,12 @@ try {
 } catch (PDOException $e) {
     die('Datenbankfehler: ' . $e->getMessage());
 }
-
+ 
 if (isset($_POST['bewerten'])) {
     header('location: bewerten.php');
     exit;
 }
-
+ 
 if (isset($_POST['liste'])) {
     header('location: filmListe.php');
     exit;
@@ -38,14 +38,14 @@ if (isset($_POST['liste'])) {
 ?>
 <!DOCTYPE html>
 <html lang="de">
-
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PopcornCheck - <?= htmlspecialchars($film['titel']) ?></title>
     <link rel="stylesheet" href="style.css">
 </head>
-
+ 
 <body class="dashboard-layout">
     <form action="" method="post">
         <!-- Top Navbar Header -->
@@ -61,7 +61,7 @@ if (isset($_POST['liste'])) {
                 <button type="submit" name="liste" class="btn btn-secondary">Zurück zur Filmliste</button>
             </div>
         </header>
-
+ 
         <!-- Two-column responsive layout -->
         <div class="movie-details-layout">
             <!-- Left Pane: Movie info, Trailer and Description -->
@@ -70,11 +70,11 @@ if (isset($_POST['liste'])) {
                     <span class="badge badge-genre" style="margin-bottom: 8px;"><?= htmlspecialchars($film['genre']) ?></span>
                     <h1 style="font-size: 2.2rem; margin-bottom: 12px;"><?= htmlspecialchars($film['titel']) ?></h1>
                 </div>
-
+ 
                 <?php if (!empty($film['trailer'])): ?>
                     <div class="trailer-container">
-                        <iframe 
-                            src="https://www.youtube.com/embed/<?= htmlspecialchars($film['trailer']) ?>" 
+                        <iframe
+                            src="https://www.youtube.com/embed/<?= htmlspecialchars($film['trailer']) ?>"
                             frameborder="0"
                             allowfullscreen>
                         </iframe>
@@ -84,21 +84,21 @@ if (isset($_POST['liste'])) {
                         <span>Es ist kein Trailer vorhanden.</span>
                     </div>
                 <?php endif; ?>
-
+ 
                 <div class="detail-meta-item">
                     <label>Beschreibung</label>
                     <p style="white-space: pre-line; line-height: 1.7;"><?= htmlspecialchars($film['beschreibung']) ?></p>
                 </div>
-
+ 
                 <div class="detail-actions">
                     <button type="submit" name="bewerten" class="btn btn-primary">Bewertung schreiben</button>
                 </div>
             </div>
-
+ 
             <!-- Right Pane: Reviews list -->
             <div class="detail-reviews-pane">
                 <h2 style="font-size: 1.4rem; margin-bottom: 20px; border-bottom: 1px solid var(--bg-card-border); padding-bottom: 12px;">Community Bewertungen</h2>
-
+ 
                 <div class="table-container" style="margin: 0; background: transparent; border: none; box-shadow: none;">
                     <table class="table-custom">
                         <thead>
@@ -133,5 +133,5 @@ if (isset($_POST['liste'])) {
         </div>
     </form>
 </body>
-
+ 
 </html>
