@@ -22,12 +22,12 @@ try {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $film_id = $_POST['film_id'] ?? '';
-    $bewertung = $_POST['bewertung'] ?? '';
+   // $bewertung = $_POST['bewertung'] ?? '';
 
     if (!empty($film_id) && !empty($bewertung)) {
         try {
-            $stmt = $pdo->prepare("INSERT INTO bewertung (bewertung, fid_fk, kid_fk) VALUES (?, ?, ?)");
-            if ($stmt->execute([$bewertung, $film_id, $_SESSION['kid']])) {
+            $stmt = $pdo->prepare("INSERT INTO bewertung (bewertung, sterne, fid_fk, kid_fk) VALUES (?, ?, ?)");
+            if ($stmt->execute([$_POST['zusatz'], $_POST['sterne'], $film_id, $_SESSION['kid']])) {
                 $message = "Bewertung erfolgreich gespeichert!";
             } else {
                 $message = "Fehler beim Speichern der Bewertung.";
@@ -94,18 +94,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div>
             <label>Bewertung:</label><br>
             <div class="rating">
-                <input type="radio" id="star5" name="bewertung" value="5" required /><label for="star5"
+                <input type="radio" id="star5" name="sterne" value="5" required /><label for="star5"
                     title="5 Sterne">★</label>
-                <input type="radio" id="star4" name="bewertung" value="4" /><label for="star4"
+                <input type="radio" id="star4" name="sterne" value="4" /><label for="star4"
                     title="4 Sterne">★</label>
-                <input type="radio" id="star3" name="bewertung" value="3" /><label for="star3"
+                <input type="radio" id="star3" name="sterne" value="3" /><label for="star3"
                     title="3 Sterne">★</label>
-                <input type="radio" id="star2" name="bewertung" value="2" /><label for="star2"
+                <input type="radio" id="star2" name="sterne" value="2" /><label for="star2"
                     title="2 Sterne">★</label>
-                <input type="radio" id="star1" name="bewertung" value="1" /><label for="star1" title="1 Stern">★</label>
+                <input type="radio" id="star1" name="sterne" value="1" /><label for="star1" title="1 Stern">★</label>
             </div>
         </div>
         <br>
+
+        <label for="zusatz">Zusätzliche Infos</label><br>
+        <textarea name="zusatz" id="zusatz"></textarea>
 
         <button type="submit">Senden</button>
     </form>
