@@ -114,24 +114,27 @@ if (isset($_POST['bearbeiten'])) {
                         <thead>
                             <tr>
                                 <th>Benutzer</th>
-                                <th style="text-align: right; width: 120px;">Bewertung</th>
+                                <th style="text-align: right;">Bewertung</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (!empty($bewertungen)): ?>
                                 <?php foreach ($bewertungen as $b): ?>
                                     <tr>
-                                        <td>
-                                            <span style="font-weight: 500; color: #ffffff;"><?= htmlspecialchars($b['email']) ?></span>
-                                        </td>
-                                        <td style="text-align: right; font-weight: 700; color: var(--primary-color);">
-                                            <?php
-                                            $stars = isset($b['sterne']) ? intval($b['sterne']) : 0;
-                                            for ($i = 0; $i < $stars; $i++) echo '★';
-                                            for ($i = $stars; $i < 5; $i++) echo '☆';
-                                            ?>
-                                            <br>
-                                            <span style="font-size: 0.8em; font-weight: normal; color: #ccc;"><?= htmlspecialchars($b['bewertung']) ?></span>
+                                        <td colspan="2" style="padding: 18px 24px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                <span style="font-weight: 500; color: #ffffff;"><?= htmlspecialchars($b['email']) ?></span>
+                                                <span style="font-weight: 700; color: var(--primary-color);">
+                                                    <?php
+                                                    $stars = isset($b['sterne']) ? intval($b['sterne']) : 0;
+                                                    for ($i = 0; $i < $stars; $i++) echo '★';
+                                                    for ($i = $stars; $i < 5; $i++) echo '☆';
+                                                    ?>
+                                                </span>
+                                            </div>
+                                            <?php if (!empty(trim($b['bewertung']))): ?>
+                                                <div style="font-size: 0.95rem; font-weight: normal; color: #e2e8f0; text-align: left; white-space: pre-wrap; word-break: break-word; line-height: 1.5; margin-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px;"><?= htmlspecialchars($b['bewertung']) ?></div>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
