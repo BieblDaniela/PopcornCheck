@@ -36,6 +36,12 @@ if (isset($_POST['liste'])) {
     header('location: filmListe.php');
     exit;
 }
+
+if (isset($_POST['bearbeiten'])) {
+    header('location: filmBearbeiten.php');
+    exit;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -93,6 +99,9 @@ if (isset($_POST['liste'])) {
  
                 <div class="detail-actions">
                     <button type="submit" name="bewerten" class="btn btn-primary">Bewertung schreiben</button>
+                    <?php if ((int)$_SESSION['kid'] === 1): ?>
+                        <button type="submit" name="bearbeiten" class="btn btn-primary">Film bearbeiten</button>
+                    <?php endif; ?>
                 </div>
             </div>
  
