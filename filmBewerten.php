@@ -26,6 +26,7 @@ try {
     die("Datenbankfehler: " . $e->getMessage());
 }
 
+$error = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['zurueck'])) {
         header('location: filmeAnzeigen.php');
@@ -35,32 +36,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sterne = $_POST['sterne'] ?? '';
     $zusatz = $_POST['zusatz'] ?? '';
 
-    $blacklist = ['scheiß', 'scheiss', 'drecks', 'kack', 'bullshit', 'kotz', 'schmutz', 'abfall', 'rotze', 'arschloch', 'idiot', 'depp', 'spast', 'opfer', 'behindert', 'wichs', 'fotze', 'hurensohn', 'schlampe', 'bastard', 'missgeburt', 'schwuchtel'];
-
-    $containsBlacklistedWort = false;
-    foreach ($blacklist as $wort) {
-        // stripos sucht, ob das Blacklist-Wort (unabhängig von Groß-/Kleinschreibung)
-        if (stripos($zusatz, $wort) !== false) {
-            $containsBlacklistedWort = true;
-            break;
-        }
-    }
-
-    if ($containsBlacklistedWort) {
-        $message = "Deine Bewertung enthält nicht erlaubte Wörter und wurde blockiert.";
-    } elseif (!empty($sterne)) {
-        try {
-            $stmt = $pdo->prepare("INSERT INTO bewertung (bewertung, sterne, fid_fk, kid_fk) VALUES (?, ?, ?, ?)");
-            if ($stmt->execute([$zusatz, $sterne, $film_id, $_SESSION['kid']])) {
-                $message = "Bewertung erfolgreich gespeichert!";
-            } else {
-                $message = "Fehler beim Speichern der Bewertung.";
-            }
-        } catch (PDOException $e) {
-            $message = "Datenbankfehler beim Speichern: " . $e->getMessage();
-        }
+    if (mb_strlen($zusatz) > 200) {
+            $error = "Die Bewertung darf maximal 200 Zeichen lang sein.";
     } else {
-        $message = "Bitte gib eine Sterne-Bewertung ein.";
+        $blacklist = ['scheiß', 'scheiss', 'drecks', 'kack', 'bullshit', 'kotz', 'schmutz', 'abfall', 'rotze', 'arschloch', 'idiot', 'depp', 'spast', 'opfer', 'behindert', 'wichs', 'fotze', 'hurensohn', 'schlampe', 'bastard', 'missgeburt', 'schwuchtel'];
+
+        $containsBlacklistedWort = false;
+        foreach ($blacklist as $wort) {
+            // stripos sucht, ob das Blacklist-Wort (unabhängig von Groß-/Kleinschreibung)
+            if (stripos($zusatz, $wort) !== false) {
+                $containsBlacklistedWort = true;
+                break;
+            }
+        }
+
+        if ($containsBlacklistedWort) {
+            $message = "Deine Bewertung enthält nicht erlaubte Wörter und wurde blockiert.";
+        } elseif (!empty($sterne)) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO bewertung (bewertung, sterne, fid_fk, kid_fk) VALUES (?, ?, ?, ?)");
+                if ($stmt->execute([$zusatz, $sterne, $film_id, $_SESSION['kid']])) {
+                    $message = "Bewertung erfolgreich gespeichert!";
+                } else {
+                    $message = "Fehler beim Speichern der Bewertung.";
+                }
+            } catch (PDOException $e) {
+                $message = "Datenbankfehler beim Speichern: " . $e->getMessage();
+            }
+        } else {
+            $message = "Bitte gib eine Sterne-Bewertung ein.";
+        }
     }
 }
 ?>
@@ -140,8 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-group">
                     <label for="zusatz">Zusätzliche Infos (optional)</label>
-                    <textarea name="zusatz" id="zusatz" class="form-control"
-                        placeholder="Wie fandest du den Film?"></textarea>
+                    <textarea name="zusatz" id="zusatz" class="form-control" maxlength="200" placeholder="Wie fandest du den Film?"></textarea>
                 </div>
 
                 <div style="display: flex; gap: 12px; margin-top: 24px;">

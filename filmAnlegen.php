@@ -12,6 +12,8 @@ function getYoutubeId($url) {
     return isset($match[1]) ? $match[1] : null;
 }
 
+$error = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST['titel']) && !empty($_POST['genre']) && !empty($_POST['beschreibung'])) {
         $titel = trim($_POST['titel']);
@@ -19,30 +21,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $genre = trim($_POST['genre']);
         $beschreibung = trim($_POST['beschreibung']);
 
-        $videoID = getYoutubeId($raw_trailer);
+        if (mb_strlen($titel) > 100) {
+            $error = "Der Titel darf maximal 100 Zeichen lang sein.";
+        } elseif (mb_strlen($genre) > 100) {
+            $error = "Das Genre darf maximal 100 Zeichen lang sein.";
+        } elseif (mb_strlen($beschreibung) > 1000) {
+            $error = "Die Beschreibung darf maximal 1000 Zeichen lang sein.";
+        } else {
+            $videoID = getYoutubeId($raw_trailer);
 
-        if ($videoID === null) {
-            die("Ungültige URL eingabe.");
-        }
+            if ($videoID === null) {
+                die("Ungültige URL eingabe.");
+            }
 
-        require_once('db.php');
+            require_once('db.php');
 
-        try {
-            $stmt = $pdo->prepare("INSERT INTO film (titel, genre, trailer, beschreibung) VALUES (:titel, :genre, :trailer, :beschreibung)");
+            try {
+                $stmt = $pdo->prepare("INSERT INTO film (titel, genre, trailer, beschreibung) VALUES (:titel, :genre, :trailer, :beschreibung)");
 
-            $stmt->execute([
-                ':titel' => $titel,
-                ':trailer' => $videoID,
-                ':genre' => $genre,
-                ':beschreibung' => $beschreibung
-            ]);
+                $stmt->execute([
+                    ':titel' => $titel,
+                    ':trailer' => $videoID,
+                    ':genre' => $genre,
+                    ':beschreibung' => $beschreibung
+                ]);
 
-            echo "Film wurde in die Datenbank hochgeladen";
+                echo "Film wurde in die Datenbank hochgeladen";
 
-            header('location: filmListe.php');
+                header('location: filmListe.php');
 
-        } catch (PDOException $e) {
-            die('Fehler beim Speichern in die Datenbank.');
+            } catch (PDOException $e) {
+                die('Fehler beim Speichern in die Datenbank.');
+            }
         }
     }
 }
@@ -67,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="" method="post">
             <div class="form-group">
                 <label for="titel">Titel</label>
-                <input type="text" name="titel" id="titel" class="form-control" required placeholder="z.B. Inception">
+                <input type="text" name="titel" id="titel" class="form-control" maxlength="100" required placeholder="z.B. Inception">
             </div>
 
             <div class="form-group">
@@ -77,12 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-group">
                 <label for="genre">Genre</label>
-                <input type="text" name="genre" id="genre" class="form-control" required placeholder="z.B. Science Fiction">
+                <input type="text" name="genre" id="genre" class="form-control" maxlength="100" required placeholder="z.B. Science Fiction">
             </div>
 
             <div class="form-group">
                 <label for="beschreibung">Beschreibung</label>
-                <textarea name="beschreibung" id="beschreibung" class="form-control" required placeholder="Kurze Inhaltsangabe des Films..."></textarea>
+                <textarea name="beschreibung" id="beschreibung" class="form-control" maxlength="1000" required placeholder="Kurze Inhaltsangabe des Films..."></textarea>
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 24px;">

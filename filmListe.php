@@ -6,7 +6,7 @@ if (empty($_SESSION['kid'])) {
 }
 
 require_once('db.php');
-$sql = "SELECT fid, titel, genre, beschreibung FROM film";
+$sql = "SELECT fid, titel, genre, beschreibung FROM film ORDER BY fid DESC";
 $params = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $suche = trim(htmlspecialchars($_POST['suche']));
             $suchParameter = "%" . $suche . "%";
 
-            $sql = "SELECT fid, titel, genre, beschreibung FROM film WHERE titel LIKE :suchParameter";
+            $sql = "SELECT fid, titel, genre, beschreibung FROM film WHERE titel LIKE :suchParameter ORDER BY fid DESC";
             $params = [':suchParameter' => $suchParameter];
         }
     }
