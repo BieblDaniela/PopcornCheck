@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="logo-container">
             <img src="Logo.png" alt="PopcornCheck Logo" class="logo-img">
         </div>
-        <h1>Film anlegen</h1>
+        <h1>Film bearbeiten</h1>
 
         <form action="" method="post">
             <div class="form-group">
