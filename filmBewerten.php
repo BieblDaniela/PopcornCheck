@@ -35,7 +35,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sterne = $_POST['sterne'] ?? '';
     $zusatz = $_POST['zusatz'] ?? '';
 
-    if (!empty($sterne)) {
+    $blacklist = ['scheiß', 'scheiss', 'drecks', 'kack', 'bullshit', 'kotz', 'schmutz', 'abfall', 'rotze', 'arschloch', 'idiot', 'depp', 'spast', 'opfer', 'behindert', 'wichs', 'fotze', 'hurensohn', 'schlampe', 'bastard', 'missgeburt', 'schwuchtel'];
+
+    $containsBlacklistedWort = false;
+    foreach ($blacklist as $wort) {
+        // stripos sucht, ob das Blacklist-Wort (unabhängig von Groß-/Kleinschreibung)
+        if (stripos($zusatz, $wort) !== false) {
+            $containsBlacklistedWort = true;
+            break;
+        }
+    }
+
+    if ($containsBlacklistedWort) {
+        $message = "Deine Bewertung enthält nicht erlaubte Wörter und wurde blockiert.";
+    } elseif (!empty($sterne)) {
         try {
             $stmt = $pdo->prepare("INSERT INTO bewertung (bewertung, sterne, fid_fk, kid_fk) VALUES (?, ?, ?, ?)");
             if ($stmt->execute([$zusatz, $sterne, $film_id, $_SESSION['kid']])) {
