@@ -38,7 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (mb_strlen($zusatz) > 200) {
             $error = "Die Bewertung darf maximal 200 Zeichen lang sein.";
-    } else {
+    }
+    
+    if (empty($error)) {
         $blacklist = ['scheiß', 'scheiss', 'drecks', 'kack', 'bullshit', 'kotz', 'schmutz', 'abfall', 'rotze', 'arschloch', 'idiot', 'depp', 'spast', 'opfer', 'behindert', 'wichs', 'fotze', 'hurensohn', 'schlampe', 'bastard', 'missgeburt', 'schwuchtel'];
 
         $containsBlacklistedWort = false;
@@ -114,6 +116,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
+        <?php if (!empty($error)): ?>
+            <div class="alert alert-danger">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($message)): ?>
             <div class="alert <?= strpos($message, 'erfolgreich') !== false ? 'alert-info' : 'alert-danger' ?>">
                 <?= htmlspecialchars($message) ?>
@@ -145,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-group">
                     <label for="zusatz">Zusätzliche Infos (optional)</label>
-                    <textarea name="zusatz" id="zusatz" class="form-control" maxlength="200" placeholder="Wie fandest du den Film?"></textarea>
+                    <textarea name="zusatz" id="zusatz" class="form-control" placeholder="Wie fandest du den Film?"></textarea>
                 </div>
 
                 <div style="display: flex; gap: 12px; margin-top: 24px;">

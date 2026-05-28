@@ -22,12 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $beschreibung = trim($_POST['beschreibung']);
 
         if (mb_strlen($titel) > 100) {
-            $error = "Der Titel darf maximal 100 Zeichen lang sein.";
-        } elseif (mb_strlen($genre) > 100) {
-            $error = "Das Genre darf maximal 100 Zeichen lang sein.";
-        } elseif (mb_strlen($beschreibung) > 1000) {
-            $error = "Die Beschreibung darf maximal 1000 Zeichen lang sein.";
-        } else {
+            $error = $error . "Der Titel darf maximal 100 Zeichen lang sein.";
+        }
+        
+        if (mb_strlen($genre) > 100) {
+            $error = $error . "Das Genre darf maximal 100 Zeichen lang sein.";
+        }
+        
+        if (mb_strlen($beschreibung) > 1000) {
+            $error = $error . "Die Beschreibung darf maximal 1000 Zeichen lang sein.";
+        }
+        
+        if (empty($error)) {
             $videoID = getYoutubeId($raw_trailer);
 
             if ($videoID === null) {
@@ -74,10 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <h1>Film anlegen</h1>
 
+        <?php if (!empty($error)): ?>
+            <div class="alert alert-danger">
+                <?php echo nl2br(htmlspecialchars($error)); ?> <!-- nl2br: Übersetzt \n von php in <br> von html -->
+            </div>
+        <?php endif; ?>
+
         <form action="" method="post">
             <div class="form-group">
                 <label for="titel">Titel</label>
-                <input type="text" name="titel" id="titel" class="form-control" maxlength="100" required placeholder="z.B. Inception">
+                <input type="text" name="titel" id="titel" class="form-control" required placeholder="z.B. Inception">
             </div>
 
             <div class="form-group">
@@ -87,12 +99,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-group">
                 <label for="genre">Genre</label>
-                <input type="text" name="genre" id="genre" class="form-control" maxlength="100" required placeholder="z.B. Science Fiction">
+                <input type="text" name="genre" id="genre" class="form-control" required placeholder="z.B. Science Fiction">
             </div>
 
             <div class="form-group">
                 <label for="beschreibung">Beschreibung</label>
-                <textarea name="beschreibung" id="beschreibung" class="form-control" maxlength="1000" required placeholder="Kurze Inhaltsangabe des Films..."></textarea>
+                <textarea name="beschreibung" id="beschreibung" class="form-control" required placeholder="Kurze Inhaltsangabe des Films..."></textarea>
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 24px;">

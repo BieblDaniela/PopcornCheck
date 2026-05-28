@@ -30,12 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $beschreibung = trim($_POST['beschreibung']);
 
         if (mb_strlen($titel) > 100) {
-            $error = "Der Titel darf maximal 100 Zeichen lang sein.";
-        } elseif (mb_strlen($genre) > 100) {
-            $error = "Das Genre darf maximal 100 Zeichen lang sein.";
-        } elseif (mb_strlen($beschreibung) > 1000) {
-            $error = "Die Beschreibung darf maximal 1000 Zeichen lang sein.";
-        } else {
+            $error = $error . "Der Titel darf maximal 100 Zeichen lang sein.\n";
+        }
+        
+        if (mb_strlen($genre) > 100) {
+            $error = $error . "Das Genre darf maximal 100 Zeichen lang sein.\n";
+        }
+        
+        if (mb_strlen($beschreibung) > 1000) {
+            $error = $error . "Die Beschreibung darf maximal 1000 Zeichen lang sein.\n";
+        }
+        
+        if (empty($error)) {
             $videoID = getYoutubeId($raw_trailer);
 
             if ($videoID === null) {
@@ -79,10 +85,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <h1>Film bearbeiten</h1>
 
+        <?php if (!empty($error)): ?>
+            <div class="alert alert-danger">
+                <?php echo nl2br(htmlspecialchars($error)); ?> <!-- nl2br: Übersetzt \n von php in <br> von html -->
+            </div>
+        <?php endif; ?>
+
         <form action="" method="post">
             <div class="form-group">
                 <label for="titel">Titel</label>
-                <input type="text" name="titel" id="titel" class="form-control" value="<?php echo htmlspecialchars($film['titel']) ?>" maxlength="100">
+                <input type="text" name="titel" id="titel" class="form-control" value="<?php echo htmlspecialchars($film['titel']) ?>">
             </div>
 
             <div class="form-group">
@@ -92,12 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-group">
                 <label for="genre">Genre</label>
-                <input type="text" name="genre" id="genre" class="form-control" value="<?php echo htmlspecialchars($film['genre']) ?>" maxlength="100">
+                <input type="text" name="genre" id="genre" class="form-control" value="<?php echo htmlspecialchars($film['genre']) ?>">
             </div>
 
             <div class="form-group">
                 <label for="beschreibung">Beschreibung</label>
-                <textarea name="beschreibung" id="beschreibung" class="form-control" maxlength="1000"><?php echo htmlspecialchars($film['beschreibung']) ?></textarea>
+                <textarea name="beschreibung" id="beschreibung" class="form-control"><?php echo htmlspecialchars($film['beschreibung']) ?></textarea>
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 24px;">
