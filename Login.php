@@ -1,5 +1,4 @@
 <?php
-session_start();
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -31,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'kid' => $user['kid']
                 ]);
             }
+            session_start();
             //Session setzen 
             session_regenerate_id(true);
 
